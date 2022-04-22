@@ -5,3 +5,5 @@
 ![rabbitmq](https://user-images.githubusercontent.com/23186519/164752902-41ce1989-9424-4c38-b45e-c611f4d2f71e.png)
 
 消息的确认：消费者收到的每条消息都碧玺进行确认（自动确认和自行确认）
+
+交换器类型：direct交换器、fanout交换器、topic交换器 header交换器
