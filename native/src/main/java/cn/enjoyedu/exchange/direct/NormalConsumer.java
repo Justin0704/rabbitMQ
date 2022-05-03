@@ -39,7 +39,7 @@ public class NormalConsumer {
                 System.out.println("Received: [" + envelope.getRoutingKey() + "]" + message);
             }
         };
-        //消费者开始指定队列上的消费
+        //消费者开始指定队列上的消息
         channel.basicConsume(queueName, true, consumer);
     }
 }
