@@ -5,9 +5,10 @@ import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * 队列交换器的多重绑定
+ */
 public class MultiBindConsumer {
-
-
 
     public static void main(String[] args) throws IOException, TimeoutException {
         //创建连接，连接到rabbitMq
