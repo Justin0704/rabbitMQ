@@ -1,4 +1,4 @@
-package cn.enjoyedu.producer_balance.mandatory;
+package cn.enjoyedu.producer_balance.producerConfirm;
 
 import com.rabbitmq.client.*;
 
@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 消费者 - (失败确认模式)
+ * 消费者 - 接收消息
  */
-public class ConsumerProducerMandatory {
+public class ProducerConfirmConsumer {
 
     public static void main(String[] args) throws IOException, TimeoutException {
 
@@ -21,13 +21,13 @@ public class ConsumerProducerMandatory {
         //创建信道
         Channel channel = connection.createChannel();
         //在信道中设置交换器
-        channel.exchangeDeclare(ProducerMandatory.EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
+        channel.exchangeDeclare(ProducerAsyncConfirm.EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
         //声明随机队列
         String queueName = channel.queueDeclare().getQueue();
         //绑定，将队列（queue-justin）与交换器通过路由键绑定
         String routeKey = "justin";
-        channel.queueBind(queueName, ProducerMandatory.EXCHANGE_NAME, routeKey);
-        System.out.println("Waiting message...");
+        channel.queueBind(queueName, ProducerAsyncConfirm.EXCHANGE_NAME, routeKey);
+        System.out.println("Waiting for message...");
 
         //声明一个消费者
         final Consumer consumer = new DefaultConsumer(channel){
