@@ -22,12 +22,6 @@ public class ProducerAsyncConfirm {
         Channel channel = connection.createChannel();
         //在信道中设置交换器
         channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
-        //TODO 连接关闭回调
-        connection.addShutdownListener(new ShutdownListener() {
-            public void shutdownCompleted(ShutdownSignalException e) {
-                System.out.println("连接关闭 ......");
-            }
-        });
         //TODO 启用发送者确认模式
         channel.confirmSelect();
         //TODO 添加发送者确认监听器
@@ -37,12 +31,6 @@ public class ProducerAsyncConfirm {
             }
             public void handleNack(long deliveryTag, boolean multiple) throws IOException {
 
-            }
-        });
-        //TODO 信道关闭回调
-        channel.addShutdownListener(new ShutdownListener() {
-            public void shutdownCompleted(ShutdownSignalException e) {
-                System.out.println("信道关闭 ......");
             }
         });
         /**
@@ -80,12 +68,8 @@ public class ProducerAsyncConfirm {
             System.out.println("Send Messages：" + routeKey + ":" + msg);
         }
         //关闭信道
-        if(channel != null){
-            channel.close();
-        }
         //关闭连接
-        if(connection != null){
-            connection.close();
-        }
+        //channel.close();
+        //connection.close();
     }
 }
