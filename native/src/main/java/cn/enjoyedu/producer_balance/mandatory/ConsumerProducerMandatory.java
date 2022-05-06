@@ -1,6 +1,5 @@
 package cn.enjoyedu.producer_balance.mandatory;
 
-import cn.enjoyedu.exchange.direct.DirectProducer;
 import com.rabbitmq.client.*;
 
 import java.io.IOException;

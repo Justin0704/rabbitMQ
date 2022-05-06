@@ -24,8 +24,35 @@ public class ProducerMandatory {
         Channel channel = connection.createChannel();
         //在信道中设置交换器
         channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
-
-        //TODO 失败通知，回调
+        //TODO 连接关闭回调
+        connection.addShutdownListener(new ShutdownListener() {
+            public void shutdownCompleted(ShutdownSignalException e) {
+                System.out.println("连接关闭 ......");
+            }
+        });
+        //TODO 信道关闭回调
+        channel.addShutdownListener(new ShutdownListener() {
+            public void shutdownCompleted(ShutdownSignalException e) {
+                System.out.println("信道关闭 ......");
+            }
+        });
+        /**
+         * TODO 失败通知，回调, 有justin接收的路由键，则消息发送成功，其它没有路由键的则消息发送失败
+         * ---------------------------------------------------
+         Send Message：justin:Hello RabbitMQ1_1651829975179
+         ---------------------------------------------------
+         Send Message：willon:Hello RabbitMQ2_1651829975395
+         返回的 replyCode：312
+         返回的 replyText：NO_ROUTE
+         返回的 exchange：mandatory_test
+         返回的 routeKey：willon
+         ---------------------------------------------------
+         Send Message：john:Hello RabbitMQ3_1651829975596
+         返回的 replyCode：312
+         返回的 replyText：NO_ROUTE
+         返回的 exchange：mandatory_test
+         返回的 routeKey：john
+         */
         channel.addReturnListener(new ReturnListener() {
             public void handleReturn(int replyCode, String replyText, String exchange, String routeKey, AMQP.BasicProperties basicProperties, byte[] bytes) throws IOException {
                 String message = new String(bytes, "UTF-8");
@@ -35,8 +62,6 @@ public class ProducerMandatory {
                 System.out.println("返回的 routeKey：" + routeKey);
             }
         });
-
-
         //声明路由键/消息体
         String[] routeKeys = {"justin", "willon", "john"};
         for(int i = 0;i<3;i++){
