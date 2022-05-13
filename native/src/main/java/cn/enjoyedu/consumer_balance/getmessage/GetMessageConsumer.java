@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 消息消费要避免拉取
+ *
+ * 消息消费拉取消费处理(尽量避免拉取消费)
  * 消费者进行消息消费的时候，无论是拉取还是消费，都要进行消息消费
  */
 public class GetMessageConsumer {
