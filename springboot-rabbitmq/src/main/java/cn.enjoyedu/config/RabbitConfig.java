@@ -1,13 +1,15 @@
 package cn.enjoyedu.config;
 
 import cn.enjoyedu.constant.RabbitConstant;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.Queue;
+import cn.enjoyedu.hello.UserReceiver;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +34,9 @@ public class RabbitConfig {
 
     @Value("${spring.rabbitmq.publisher-confirms}")
     private Boolean publisherConfirms;
+
+    @Autowired
+    private UserReceiver userReceiver;
 
     /**
      * 连接工厂
@@ -72,24 +77,57 @@ public class RabbitConfig {
         return template;
     }
     /**
+     * 使用了rabbitMQ系统缺省的交换器（direct交换器）
      * 声明队列
      */
     @Bean
-    public Queue helloQueue(){
-        return new Queue(RabbitConstant.QUEUE_HELLO);
+    public Queue helloQueue(){ return new Queue(RabbitConstant.QUEUE_HELLO); }
+    @Bean
+    public Queue userQueue(){ return new Queue(RabbitConstant.QUEUE_USER); }
+
+    //TODO -------------------------验证-Topic exchange demo
+    @Bean
+    public Queue queueEmailMessage(){ return new Queue(RabbitConstant.QUEUE_TOPIC_EMAIL); }
+    @Bean
+    public Queue queueUserMessage(){ return new Queue(RabbitConstant.QUEUE_TOPIC_USER); }
+    //声明topic交换器
+    @Bean
+    public TopicExchange exchange(){ return new TopicExchange(RabbitConstant.EXCHANGE_TOPIC); }
+    //绑定关系
+    @Bean
+    public Binding bindingEmailExchangeMessage(){
+        return BindingBuilder.bind(queueEmailMessage()).to(exchange()).with(RabbitConstant.ROUTE_KEY_EMAIL);
     }
     @Bean
-    public Queue userQueu(){
-        return new Queue(RabbitConstant.QUEUE_USER);
+    public Binding bindingUserExchangeEmail(){
+        return BindingBuilder.bind(queueUserMessage()).to(exchange()).with(RabbitConstant.ROUTE_KEY_USER);
     }
 
+    //TODO ----------------------验证Fanout交换器
+    @Bean
+    public Queue AMessage(){ return new Queue(RabbitConstant.QUEUE_FANOUT); }
+    @Bean
+    public FanoutExchange fanoutExchange(){ return new FanoutExchange(RabbitConstant.EXCHANGE_FANOUT); }
+
+    //TODO 消费者确认
+    @Bean
+    public SimpleMessageListenerContainer messageListenerContainer(){
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory());
+        //绑定sb.user队列
+        container.setQueues(userQueue());
+        //手动提交
+        container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+        //发送确认
+        container.setMessageListener(userReceiver);
+        return container;
+    }
 
     /**
      * 生产者发送确认
      * @return
      */
     @Bean
-    private RabbitTemplate.ConfirmCallback confirmCallback() {
+    public RabbitTemplate.ConfirmCallback confirmCallback() {
         return new RabbitTemplate.ConfirmCallback() {
             @Override
             public void confirm(CorrelationData correlationData, boolean ack, String cause) {
@@ -102,13 +140,12 @@ public class RabbitConfig {
             }
         };
     }
-
     /**
      * 失败回调
      * @return
      */
     @Bean
-    private RabbitTemplate.ReturnCallback returnCallback() {
+    public RabbitTemplate.ReturnCallback returnCallback() {
         return new RabbitTemplate.ReturnCallback() {
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
