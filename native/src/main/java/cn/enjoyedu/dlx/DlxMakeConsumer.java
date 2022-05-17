@@ -26,6 +26,8 @@ public class DlxMakeConsumer {
         String queueName = "dlx_make";
         Map<String, Object> argsMap = new HashMap<String, Object>();
         argsMap.put("x-dead-letter-exchange", DlxProcessConsumer.DLX_EXCHANGE_NAME);
+        //死信路由键，会替换掉原来的路由键
+        //argsMap.put("x-dead-letter-routing-key", "deal");
         channel.queueDeclare(queueName, false, false, false, argsMap);
 
         //绑定，将队列和交换器通过路由键进行绑定
