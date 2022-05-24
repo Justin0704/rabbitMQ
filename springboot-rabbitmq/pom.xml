@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.enjoyedu</groupId>
-    <artifactId>demo</artifactId>
+    <artifactId>springboot-rabbitmq</artifactId>
 
 
 </project>

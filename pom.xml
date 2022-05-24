@@ -18,6 +18,8 @@
     <modules>
         <module>native</module>
         <module>springboot-rabbitmq</module>
+        <module>springmvc-rabbitmq</module>
+        <module>springmvc-rabbitmq-consumer</module>
     </modules>
 
     <dependencies>
